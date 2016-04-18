@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "uvisor-lib/uvisor-lib.h"
+#include "rt_TypeDef.h"
 #include "rt_Memory.h"
 #include <string.h>
 
