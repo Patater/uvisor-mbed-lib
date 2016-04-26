@@ -11,37 +11,55 @@
    using printf in malloc may lead to recusive calls! */
 /* #define DPRINTF(fmt, ...) printf(fmt, ## __VA_ARGS__) */
 
-static UvisorAllocator malloc_allocator = NULL;
+extern UvisorBoxIndex *const __uvisor_ps;
 
-UVISOR_WEAK UvisorAllocator uvisor_allocator_init(void)
-{
-    /* Use our own allocator within the process heap space */
-    extern uint32_t end[];
-    extern uint32_t __StackLimit[];
-    return uvisor_allocator_create_with_pool(end, (size_t)__StackLimit - (size_t)end);
-}
 
-UvisorAllocator uvisor_get_allocator(void)
-{
-    if (!malloc_allocator) uvisor_set_allocator(uvisor_allocator_init());
-    return malloc_allocator;
-}
 int uvisor_set_allocator(UvisorAllocator allocator)
 {
-    if (allocator == NULL) return -1;
     DPRINTF("uvisor_allocator: Setting new allocator %p\n", allocator);
-    malloc_allocator = allocator;
+
+    if (allocator == NULL) return -1;
+    __uvisor_ps->active_heap = allocator;
     return 0;
 }
 
+static inline int check_allocator()
+{
+    if (__uvisor_ps == NULL) return -1;
+
+    if (__uvisor_ps->active_heap == NULL) {
+        /* we need to initialize the process heap */
+        if (__uvisor_ps->process_heap != NULL) {
+            /* initialize the process heap */
+            UvisorAllocator allocator = uvisor_allocator_create_with_pool(
+                __uvisor_ps->process_heap,
+                __uvisor_ps->process_heap_size);
+            /* set the allocator */
+            return uvisor_set_allocator(allocator);
+        }
+        DPRINTF("uvisor_allocator: No process heap available!\n");
+        return -1;
+    }
+    return 0;
+}
+
+/* public API */
+UvisorAllocator uvisor_get_allocator(void)
+{
+    if (check_allocator()) return NULL;
+    return __uvisor_ps->active_heap;
+}
+
+/* wrapped memory management functions */
 void *__real__malloc_r(struct _reent*, size_t);
 void *__wrap__malloc_r(struct _reent*r, size_t size) {
     static unsigned int count = 0;
     (void)r;
     count++;
-    DPRINTF(">> malloc #%u: %uB for %p\n", count, size, malloc_allocator);
-    if (!malloc_allocator) uvisor_set_allocator(uvisor_allocator_init());
-    return uvisor_malloc(malloc_allocator, size);
+    DPRINTF(">> malloc #%u: %uB for %p\n", count, size, __uvisor_ps->active_heap);
+
+    if (check_allocator()) return NULL;
+    return uvisor_malloc(__uvisor_ps->active_heap, size);
 }
 
 void *__real__realloc_r(struct _reent*, void *, size_t);
@@ -49,9 +67,10 @@ void *__wrap__realloc_r(struct _reent*r, void *ptr, size_t size) {
     static unsigned int count = 0;
     (void)r;
     count++;
-    DPRINTF(">> realloc #%u: %u at %p for %p\n", count, size, ptr, malloc_allocator);
-    if (!malloc_allocator) uvisor_set_allocator(uvisor_allocator_init());
-    return uvisor_realloc(malloc_allocator, ptr, size);
+    DPRINTF(">> realloc #%u: %u at %p for %p\n", count, size, ptr, __uvisor_ps->active_heap);
+
+    if (check_allocator()) return NULL;
+    return uvisor_realloc(__uvisor_ps->active_heap, ptr, size);
 }
 
 void __real__free_r(struct _reent*, void *);
@@ -59,7 +78,8 @@ void __wrap__free_r(struct _reent*r, void *ptr) {
     static unsigned int count = 0;
     (void)r;
     count++;
-    DPRINTF(">> free #%u: %p for %p\n", count, ptr, malloc_allocator);
-    if (!malloc_allocator) uvisor_set_allocator(uvisor_allocator_init());
-    uvisor_free(malloc_allocator, ptr);
+    DPRINTF(">> free #%u: %p for %p\n", count, ptr, __uvisor_ps->active_heap);
+
+    if (check_allocator()) return;
+    uvisor_free(__uvisor_ps->active_heap, ptr);
 }

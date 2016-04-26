@@ -23,12 +23,6 @@
 extern "C" {
 #endif
 
-/** Function gets called on first call to malloc.
- * It needs to initialize and set the initial heap allocator so that any
- * calls to malloc during initialization call a valid allocator.
- */
-UvisorAllocator uvisor_allocator_init(void);
-
 /** Sets the allocator to be used from now on.
  * @retval 0  if allocator valid (non-NULL)
  * @retval -1 if allocator invalid
