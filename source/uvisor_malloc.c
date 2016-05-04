@@ -83,3 +83,16 @@ void __wrap__free_r(struct _reent*r, void *ptr) {
     if (check_allocator()) return;
     uvisor_free(__uvisor_ps->active_heap, ptr);
 }
+
+void *malloc_p(size_t size) {
+    if (check_allocator()) return NULL;
+    return uvisor_malloc(__uvisor_ps->process_heap, size);
+}
+void *realloc_p(void *ptr, size_t size) {
+    if (check_allocator()) return NULL;
+    return uvisor_realloc(__uvisor_ps->process_heap, ptr, size);
+}
+void free_p(void *ptr) {
+    if (check_allocator()) return;
+    uvisor_free(__uvisor_ps->process_heap, ptr);
+}
