@@ -1,6 +1,6 @@
 [submodule "deploy/TARGET_IGNORE/uvisor"]
 	path = deploy/TARGET_IGNORE/uvisor
-	url = git@github.com:niklas-arm/uvisor.git
+	url = git@github.com:Patater/uvisor.git
 [submodule "deploy/neo"]
 	path = deploy/neo
 	url = git@github.com:ARMmbed/neo.git
