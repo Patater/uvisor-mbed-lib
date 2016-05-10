@@ -40,7 +40,7 @@ static inline int init_allocator()
 
     if (__uvisor_ps->mutex_id == NULL && is_kernel_initialized()) {
         /* create mutex if not already done */
-        __uvisor_ps->mutex_id = osMutexCreate(&(__uvisor_ps->mutex));
+        __uvisor_ps->mutex_id = osMutexCreate((osMutexDef_t *)&__uvisor_ps->mutex);
         /* mutex failed to be created */
         if (__uvisor_ps->mutex_id == NULL) return -1;
     }
@@ -120,7 +120,7 @@ void *$Sub$$_realloc_r(struct _reent*r, void *ptr, size_t size) {
 }
 void $Sub$$_free_r(struct _reent*r, void *ptr) {
     (void)r;
-    return memory(ptr, 0, &(__uvisor_ps->active_heap), OP_FREE);
+    memory(ptr, 0, &(__uvisor_ps->active_heap), OP_FREE);
 }
 #elif defined (__GNUC__)
 void *__wrap__malloc_r(struct _reent*r, size_t size) {
@@ -132,7 +132,7 @@ void *__wrap__realloc_r(struct _reent*r, void *ptr, size_t size) {
 }
 void __wrap__free_r(struct _reent*r, void *ptr) {
     (void)r;
-    return memory(ptr, 0, &(__uvisor_ps->active_heap), OP_FREE);
+    memory(ptr, 0, &(__uvisor_ps->active_heap), OP_FREE);
 }
 #elif defined (__ICCARM__)
 #   warning "Using uVisor allocator is not available for IARCC. Falling back to newlib allocator."
@@ -145,5 +145,5 @@ void *realloc_p(void *ptr, size_t size) {
     return memory(ptr, size, &(__uvisor_ps->process_heap), OP_REALLOC);
 }
 void free_p(void *ptr) {
-    return memory(ptr, 0, &(__uvisor_ps->process_heap), OP_FREE);
+    memory(ptr, 0, &(__uvisor_ps->process_heap), OP_FREE);
 }
