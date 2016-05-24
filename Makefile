@@ -59,7 +59,9 @@ rsync:
 	rsync -a --delete $(UVISOR_API)/inc/ $(TARGET_INC)/uvisor/api/inc
 	#
 	# Copying uVisor source file to mbed source...
-	cp $(UVISOR_API)/src/unsupported.c $(TARGET_SRC)/
+	cp $(UVISOR_API)/rtx/inc/* $(TARGET_INC)/uvisor-lib/
+	cp $(UVISOR_API)/rtx/src/* $(TARGET_SRC)/
+	cp $(UVISOR_DIR)/core/system/src/page_allocator.c $(TARGET_SRC)/page_allocator.c_inc
 
 TARGET_M%: $(TARGET_DST)/*/*/*_m%_*.a
 	@printf "#\n# Copying $@ files...\n"
