@@ -18,6 +18,7 @@
 #define __UVISOR_API_BOX_CONFIG_H__
 
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/vmpu_exports.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -41,6 +42,8 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
     static const __attribute__((section(".keep.uvisor.cfgtbl"), aligned(4))) UvisorBoxConfig main_cfg = { \
         UVISOR_BOX_MAGIC, \
         UVISOR_BOX_VERSION, \
+        0, \
+        0, \
         0, \
         0, \
         NULL, \
