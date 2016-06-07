@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited, All Rights Reserved
+ * Copyright (c) 2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,21 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __UVISOR_API_HALT_EXPORTS_H__
-#define __UVISOR_API_HALT_EXPORTS_H__
+#ifndef __UVISOR_RTX_MALLOC_H__
+#define __UVISOR_RTX_MALLOC_H__
 
-#define UVISOR_ERROR_INVALID_BOX_ID             (-2)
-#define UVISOR_ERROR_BUFFER_TOO_SMALL           (-3)
-#define UVISOR_ERROR_BOX_NAMESPACE_ANONYMOUS    (-4)
+#include "uvisor_allocator.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define UVISOR_ERROR_CLASS_MASK     (0xFFFF0000UL)
-#define UVISOR_ERROR_MASK           (0x0000FFFFUL)
+/* Allocate memory on the process heap. */
+void * malloc_p(size_t size);
+/* Reallocate memory on the process heap. */
+void * realloc_p(void * ptr, size_t size);
+/* Free memory on the process heap. */
+void free_p(void * ptr);
 
-#define UVISOR_ERROR_CLASS_PAGE     (1UL << 16)
+#ifdef __cplusplus
+}   /* extern "C" */
+#endif
 
-typedef enum {
-    USER_NOT_ALLOWED = 1,
-} THaltUserError;
-
-#endif /* __UVISOR_API_HALT_EXPORTS_H__ */
+#endif  /* __UVISOR_RTX_MALLOC_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited, All Rights Reserved
+ * Copyright (c) 2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,9 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __UVISOR_API_SVC_GW_EXPORTS_H__
-#define __UVISOR_API_SVC_GW_EXPORTS_H__
+#ifndef __UVISOR_RTX_BOX_INDEX_H__
+#define __UVISOR_RTX_BOX_INDEX_H__
 
-#define UVISOR_SVC_GW_MAGIC  0xABCDABCD /* FIXME update with correct magic */
+#include "cmsis_os.h"
 
-#endif /* __UVISOR_API_SVC_GW_EXPORTS_H__ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct
+{
+    /* The uvisor box index must be placed at the beginning */
+    UvisorBoxIndex index;
+
+    /* Id of the mutex */
+    osMutexId mutex_id;
+    /* Pointer to the data of the mutex */
+    osMutexDef_t mutex;
+    /* Internal data of the mutex */
+    int32_t mutex_data[4];
+} RtxBoxIndex;
+
+#ifdef __cplusplus
+}   /* extern "C" */
+#endif
+
+#endif  /* __UVISOR_RTX_BOX_INDEX_H__ */
